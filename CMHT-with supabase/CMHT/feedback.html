@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMHT Feedback Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .feedback-list {
+            margin-top: 40px;
+        }
+        .feedback-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .feedback-type {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .feedback-timestamp {
+            color: #666;
+            font-size: 12px;
+        }
+        .stats {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .stats h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CMHT Feedback System</h1>
+        
+        <!-- Feedback Form -->
+        <form id="feedbackForm">
+            <div class="form-group">
+                <label for="type">Feedback Type:</label>
+                <select id="type" name="type" required>
+                    <option value="">Select feedback type</option>
+                    <option value="general">General Feedback</option>
+                    <option value="technical">Technical Issue</option>
+                    <option value="suggestion">Suggestion</option>
+                    <option value="complaint">Complaint</option>
+                    <option value="praise">Praise</option>
+                    <option value="bug">Bug Report</option>
+                    <option value="feature">Feature Request</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Your Name (Optional):</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email (Optional):</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Feedback Message:</label>
+                <textarea id="message" name="message" placeholder="Please describe your feedback..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="rating">Rating (Optional):</label>
+                <select id="rating" name="rating">
+                    <option value="">Select rating</option>
+                    <option value="1">1 - Poor</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="3">3 - Good</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="5">5 - Excellent</option>
+                </select>
+            </div>
+            
+            <button type="submit">Submit Feedback</button>
+        </form>
+        
+        <div id="messageDiv"></div>
+        
+        <!-- Statistics -->
+        <div class="stats">
+            <h3>Feedback Statistics</h3>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalFeedback">-</div>
+                    <div class="stat-label">Total Feedback</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="typesCount">-</div>
+                    <div class="stat-label">Feedback Types</div>
+                </div>
+            </div>
+            <button onclick="loadStats()" style="margin-top: 15px; background-color: #28a745;">Refresh Stats</button>
+        </div>
+        
+        <!-- Recent Feedback -->
+        <div class="feedback-list">
+            <h3>Recent Feedback</h3>
+            <button onclick="loadFeedback()" style="margin-bottom: 15px; background-color: #17a2b8;">Load Recent Feedback</button>
+            <div id="feedbackList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Submit feedback form
+        document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const feedbackData = {};
+            
+            // Convert FormData to object
+            for (let [key, value] of formData.entries()) {
+                if (value.trim() !== '') {
+                    feedbackData[key] = value.trim();
+                }
+            }
+            
+            try {
+                const response = await fetch('/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(feedbackData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Feedback submitted successfully!', 'success');
+                    document.getElementById('feedbackForm').reset();
+                    // Refresh stats and feedback list
+                    loadStats();
+                    loadFeedback();
+                } else {
+                    showMessage(`Error: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Error submitting feedback: ${error.message}`, 'error');
+            }
+        });
+        
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('messageDiv');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Load feedback statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/feedback/stats');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const stats = result.stats;
+                    document.getElementById('totalFeedback').textContent = stats.total_feedback;
+                    document.getElementById('typesCount').textContent = stats.types_count;
+                    
+                    // Add type-specific stats
+                    const statsGrid = document.getElementById('statsGrid');
+                    // Clear existing type stats
+                    const existingTypeStats = statsGrid.querySelectorAll('.type-stat');
+                    existingTypeStats.forEach(stat => stat.remove());
+                    
+                    // Add new type stats
+                    for (const [type, count] of Object.entries(stats.by_type)) {
+                        const typeStat = document.createElement('div');
+                        typeStat.className = 'stat-item type-stat';
+                        typeStat.innerHTML = `
+                            <div class="stat-number">${count}</div>
+                            <div class="stat-label">${type}</div>
+                        `;
+                        statsGrid.appendChild(typeStat);
+                    }
+                } else {
+                    console.error('Failed to load stats:', result.message);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        // Load recent feedback
+        async function loadFeedback() {
+            try {
+                const response = await fetch('/feedback?limit=10');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const feedbackList = document.getElementById('feedbackList');
+                    feedbackList.innerHTML = '';
+                    
+                    if (result.data.length === 0) {
+                        feedbackList.innerHTML = '<p>No feedback available yet.</p>';
+                        return;
+                    }
+                    
+                    result.data.forEach(feedback => {
+                        const feedbackItem = document.createElement('div');
+                        feedbackItem.className = 'feedback-item';
+                        
+                        const timestamp = new Date(feedback.timestamp).toLocaleString();
+                        
+                        feedbackItem.innerHTML = `
+                            <div class="feedback-type">${feedback.type}</div>
+                            <div class="feedback-timestamp">${timestamp}</div>
+                            <p>${feedback.message}</p>
+                            ${feedback.name ? `<strong>From: ${feedback.name}</strong>` : ''}
+                            ${feedback.rating ? `<br><strong>Rating: ${feedback.rating}/5</strong>` : ''}
+                        `;
+                        
+                        feedbackList.appendChild(feedbackItem);
+                    });
+                } else {
+                    console.error('Failed to load feedback:', result.message);
+                }
+            } catch (error) {
+                console.error('Error loading feedback:', error);
+            }
+        }
+        
+        // Load stats and feedback on page load
+        window.addEventListener('load', function() {
+            loadStats();
+            loadFeedback();
+        });
+    </script>
+</body>
+</html> 

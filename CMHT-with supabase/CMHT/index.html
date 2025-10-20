@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CMHT-IT Voice Assistant</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+      padding: 15px;
+      background: linear-gradient(135deg, rgba(0, 255, 0, 0.08), rgba(0, 0, 0, 0.9));
+      border-radius: 25px;
+      border: 1px solid rgba(0, 255, 0, 0.25);
+      backdrop-filter: blur(15px);
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(0, 255, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.5), transparent);
+    }
+
+    .logo {
+      width: 500px;
+      height: auto;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background: linear-gradient(145deg, rgba(0, 255, 0, 0.1), rgba(0, 0, 0, 0.3));
+      border: 2px solid rgba(0, 255, 0, 0.3);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(0, 255, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .logo:hover {
+      transform: translateY(-5px) scale(1.02);
+      border-color: rgba(0, 255, 0, 0.6);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(0, 255, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .logo:hover::before {
+      left: 100%;
+    }
+
+    .logo img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      filter: brightness(1.1) contrast(1.1) saturate(1.1);
+      transition: all 0.3s ease;
+      z-index: 2;
+      position: relative;
+    }
+
+    .logo:hover img {
+      filter: brightness(1.2) contrast(1.2) saturate(1.2);
+      transform: scale(1.05);
+    }
+
+    .logo-fallback {
+      color: #00ff00;
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 3px;
+      text-align: center;
+      letter-spacing: 1px;
+      text-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    }
+
+    .subtitle {
+      font-size: 24px;
+      font-weight: 600;
+      color: #00ff00;
+      margin-bottom: 15px;
+      text-align: center;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+    }
+
+    .tagline {
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+      line-height: 1.2;
+      margin-bottom: 5px;
+    }
+
+    .separator {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00ff00, transparent);
+      margin: 8px auto;
+      border-radius: 2px;
+    }
+
+    .sound-bar {
+      width: 200px;
+      height: 4px;
+      background-color: #333;
+      margin: 0 auto 20px;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sound-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #00ff00, transparent);
+      animation: sound-wave 2s infinite;
+    }
+
+    @keyframes sound-wave {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .sound-bar.active::before {
+      animation: sound-wave 0.5s infinite;
+    }
+
+    .mic-button {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(145deg, #00ff00, #00cc00);
+      border: 3px solid #00ff00;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      box-shadow: 
+        0 8px 16px rgba(0, 255, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .mic-button::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      right: -8px;
+      bottom: -8px;
+      background: linear-gradient(145deg, #00ff00, #00cc00);
+      border-radius: 50%;
+      z-index: -1;
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+
+    .mic-button:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 
+        0 12px 24px rgba(0, 255, 0, 0.4),
+        0 6px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .mic-button:hover::before {
+      opacity: 0.3;
+      transform: scale(1.1);
+    }
+
+    .mic-button:active {
+      transform: scale(0.98) translateY(1px);
+      box-shadow: 
+        0 4px 8px rgba(0, 255, 0, 0.3),
+        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .mic-button.recording {
+      background: linear-gradient(145deg, #ff4444, #cc0000);
+      border-color: #ff4444;
+      animation: pulse-recording 1.5s infinite;
+      box-shadow: 
+        0 0 30px rgba(255, 68, 68, 0.6),
+        0 8px 16px rgba(255, 68, 68, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .mic-icon {
+      width: 36px;
+      height: 36px;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      transition: all 0.3s ease;
+    }
+
+    .mic-button:hover .mic-icon {
+      transform: scale(1.1);
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    }
+
+    .mic-button.recording .mic-icon {
+      color: white;
+      animation: icon-pulse 1.5s infinite;
+    }
+
+    @keyframes icon-pulse {
+      0%, 100% { 
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% { 
+        transform: scale(1.1);
+        opacity: 0.9;
+      }
+    }
+
+    @keyframes pulse-recording {
+      0% { 
+        transform: scale(1);
+        box-shadow: 
+          0 0 30px rgba(255, 68, 68, 0.6),
+          0 8px 16px rgba(255, 68, 68, 0.4);
+      }
+      50% { 
+        transform: scale(1.05);
+        box-shadow: 
+          0 0 40px rgba(255, 68, 68, 0.8),
+          0 12px 24px rgba(255, 68, 68, 0.6);
+      }
+      100% { 
+        transform: scale(1);
+        box-shadow: 
+          0 0 30px rgba(255, 68, 68, 0.6),
+          0 8px 16px rgba(255, 68, 68, 0.4);
+      }
+    }
+
+    .instruction {
+      margin-top: 25px;
+      font-size: 18px;
+      color: #e0e0e0;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .auto-end-info {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+      font-style: italic;
+      line-height: 1.3;
+    }
+
+    .ending-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 255, 0, 0.9);
+      color: #000;
+      padding: 15px 25px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      display: none;
+      z-index: 1002;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 25px rgba(0, 255, 0, 0.4);
+      animation: fadeInOut 3s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    }
+
+    .status-bar {
+      background-color: #00ff00;
+      color: white;
+      padding: 6px 16px;
+      border-radius: 25px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .status-icon {
+      width: 12px;
+      height: 12px;
+      background-color: #ff0000;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .status-icon.active {
+      background-color: #00ff00;
+      animation: pulse 1s infinite;
+    }
+
+    .status-icon.timeout {
+      background-color: #ffaa00;
+      animation: pulse 0.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .timeout-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 170, 0, 0.9);
+      color: #000;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      display: none;
+      z-index: 1001;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
+    }
+
+    .voice-container {
+      background: linear-gradient(145deg, rgba(0, 255, 0, 0.05), rgba(0, 0, 0, 0.9));
+      border: 2px solid rgba(0, 255, 0, 0.3);
+      border-radius: 25px;
+      padding: 20px 30px;
+      text-align: center;
+      margin: 8px 0;
+      min-width: 350px;
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(0, 255, 0, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .voice-container:hover {
+      border-color: rgba(0, 255, 0, 0.5);
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(0, 255, 0, 0.2);
+    }
+
+    .response-container {
+      margin-top: 20px;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    .user-text, .bot-reply {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #111;
+      border-left: 3px solid #00ff00;
+    }
+
+    .audio-controls {
+      margin-top: 15px;
+    }
+
+    .assistance-container {
+      position: fixed;
+      bottom: 30px;
+      left: 15px;
+      z-index: 1000;
+      pointer-events: auto;
+    }
+
+    .assistance-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .assistance-btn {
+      background: linear-gradient(145deg, #00ff00, #00cc00);
+      color: #000;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 45px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.4),
+        0 0 15px rgba(0, 255, 0, 0.3);
+      border: 2px solid rgba(0, 255, 0, 0.5);
+      min-width: 160px;
+      justify-content: center;
+    }
+
+    .assistance-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.5),
+        0 0 25px rgba(0, 255, 0, 0.5);
+      border-color: rgba(0, 255, 0, 0.8);
+    }
+
+    .dropdown-arrow {
+      font-size: 12px;
+      transition: transform 0.3s ease;
+      transform: rotate(0deg); /* Start pointing down */
+    }
+
+    .assistance-menu {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      background: #111;
+      border: 2px solid #00ff00;
+      border-radius: 15px;
+      padding: 10px 0;
+      margin-bottom: 15px;
+      min-width: 200px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
+    }
+
+    .assistance-menu.show {
+      display: block;
+    }
+
+    .assistance-option {
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border-bottom: 1px solid #333;
+    }
+
+    .assistance-option:last-child {
+      border-bottom: none;
+    }
+
+    .assistance-option:hover {
+      background-color: #00ff00;
+      color: #000;
+    }
+
+    .assistance-status {
+      position: fixed;
+      bottom: 100px;
+      left: 30px;
+      padding: 8px 15px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.95);
+      border-left: 3px solid #00ff00;
+      max-width: 280px;
+      z-index: 999;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+      font-size: 12px;
+      line-height: 1.3;
+      word-wrap: break-word;
+    }
+
+    /* Share Feedback Button */
+    .share-feedback-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 15px;
+      background: linear-gradient(145deg, #00ff00, #00cc00);
+      color: #000;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 45px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.4),
+        0 0 15px rgba(0, 255, 0, 0.3);
+      border: 2px solid rgba(0, 255, 0, 0.5);
+      z-index: 1000;
+      min-width: 160px;
+      justify-content: center;
+    }
+
+    .share-feedback-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.5),
+        0 0 25px rgba(0, 255, 0, 0.5);
+      border-color: rgba(0, 255, 0, 0.8);
+    }
+
+    /* Feedback Modal */
+    .feedback-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+    }
+
+    .feedback-modal-content {
+      background: linear-gradient(145deg, rgba(0, 255, 0, 0.05), rgba(0, 0, 0, 0.95));
+      border: 2px solid rgba(0, 255, 0, 0.3);
+      border-radius: 20px;
+      padding: 25px 30px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      backdrop-filter: blur(15px);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(0, 255, 0, 0.2);
+    }
+
+    .feedback-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .feedback-modal-header h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #00ff00;
+      margin: 0;
+      text-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+    }
+
+    .close-modal-btn {
+      background: none;
+      border: none;
+      color: #00ff00;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .close-modal-btn:hover {
+      background: rgba(0, 255, 0, 0.1);
+      transform: scale(1.1);
+    }
+
+    .rating-container {
+      margin-bottom: 20px;
+    }
+
+    .star-rating {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .star {
+      font-size: 28px;
+      color: #333;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    }
+
+    .star:hover {
+      color: #00ff00;
+      transform: scale(1.1);
+      text-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+    }
+
+    .star.active {
+      color: #00ff00;
+      text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+    }
+
+    .star.filled {
+      color: #00ff00;
+    }
+
+    .rating-text {
+      font-size: 14px;
+      color: #888;
+      font-style: italic;
+    }
+
+    .feedback-comment {
+      width: 100%;
+      max-width: 350px;
+      padding: 15px;
+      border: 2px solid rgba(0, 255, 0, 0.3);
+      border-radius: 15px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      min-height: 80px;
+    }
+
+    .feedback-comment:focus {
+      outline: none;
+      border-color: rgba(0, 255, 0, 0.6);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .feedback-comment::placeholder {
+      color: #666;
+    }
+
+    .feedback-submit {
+      background: linear-gradient(145deg, #00ff00, #00cc00);
+      color: #000;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(0, 255, 0, 0.3);
+      border: 2px solid rgba(0, 255, 0, 0.5);
+    }
+
+    .feedback-submit:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 
+        0 12px 35px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(0, 255, 0, 0.5);
+      border-color: rgba(0, 255, 0, 0.8);
+    }
+
+    .feedback-submit:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .feedback-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .feedback-type-container {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .feedback-type-label {
+      display: block;
+      font-size: 14px;
+      color: #00ff00;
+      margin-bottom: 8px;
+      font-weight: 500;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    }
+
+    .feedback-type-dropdown {
+      width: 100%;
+      max-width: 350px;
+      padding: 12px 15px;
+      border: 2px solid rgba(0, 255, 0, 0.3);
+      border-radius: 15px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ff00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 16px;
+      padding-right: 45px;
+    }
+
+    .feedback-type-dropdown:focus {
+      outline: none;
+      border-color: rgba(0, 255, 0, 0.6);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .feedback-type-dropdown:hover {
+      border-color: rgba(0, 255, 0, 0.5);
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .feedback-type-dropdown option {
+      background: #000;
+      color: white;
+      padding: 10px;
+    }
+
+    .feedback-status {
+      margin-top: 15px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.95);
+      border-left: 4px solid #00ff00;
+      max-width: 350px;
+      margin-left: auto;
+      margin-right: auto;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
+      font-size: 14px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <img src="static/UnivNorthTexas_logo.webp" alt="UNT CMHT-IT Logo" 
+           onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'logo-fallback\'>UNT</div>';">
+    </div>
+    <div class="title">CMHT-IT VOICE ASSISTANT</div>
+    <p class="tagline">IT - HELP DESK</p>
+    <div class="separator"></div>
+  </div>
+  
+  <div class="voice-container">
+    <div class="sound-bar"></div>
+    <button id="micBtn" class="mic-button">
+      <svg class="mic-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/>
+      </svg>
+    </button>
+    <div class="instruction">Ready to assist — just speak</div>
+    <div class="auto-end-info"> Auto-ends after 30s of silence or when you say "thank you", "okay", etc.</div>
+    <div id="timeoutIndicator" class="timeout-indicator">Auto-end in: <span id="timeoutCountdown">30</span>s</div>
+    <div id="endingIndicator" class="ending-indicator">Interaction ending...</div>
+  </div>
+
+  <button id="shareFeedbackBtn" class="share-feedback-btn">😊 Share Feedback</button>
+
+  <div class="assistance-container">
+    <div class="assistance-dropdown">
+      <button id="assistanceBtn" class="assistance-btn">
+        <span>Need Assistance</span>
+        <div class="dropdown-arrow">▼</div>
+      </button>
+      <div id="assistanceMenu" class="assistance-menu">
+        <div class="assistance-option" data-type="laptop checkout">Laptop Checkout</div>
+        <div class="assistance-option" data-type="laptop checkin">Laptop Checkin</div>
+        <div class="assistance-option" data-type="information">Information</div>
+      </div>
+    </div>
+    <div id="assistanceStatus" class="assistance-status" style="display: none;"></div>
+  </div>
+
+  <!-- Feedback Modal -->
+  <div id="feedbackModal" class="feedback-modal">
+    <div class="feedback-modal-content">
+      <div class="feedback-modal-header">
+        <h3>How was your experience?</h3>
+        <button id="closeFeedbackModal" class="close-modal-btn">×</button>
+      </div>
+      
+      <div class="feedback-type-container">
+        <label for="feedbackType" class="feedback-type-label">Feedback Type:</label>
+        <select id="feedbackType" class="feedback-type-dropdown">
+          <option value="general">General Experience</option>
+          <option value="voice-recognition">Voice Recognition</option>
+          <option value="information-accuracy">Information Accuracy</option>
+          <option value="user-interface">User Interface</option>
+          <option value="response-speed">Response Speed</option>
+          <option value="feature-request">Feature Request</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      
+      <div class="rating-container">
+        <div class="star-rating">
+          <span class="star" data-rating="1">★</span>
+          <span class="star" data-rating="2">★</span>
+          <span class="star" data-rating="3">★</span>
+          <span class="star" data-rating="4">★</span>
+          <span class="star" data-rating="5">★</span>
+        </div>
+        <div class="rating-text">Click to rate</div>
+      </div>
+      <textarea id="feedbackComment" class="feedback-comment" placeholder="Share your feedback (optional)..." rows="3"></textarea>
+      <button id="submitFeedback" class="feedback-submit">Submit Feedback</button>
+      <div id="feedbackStatus" class="feedback-status" style="display: none;"></div>
+    </div>
+  </div>
+  
+  <div class="status-bar">
+    <div class="status-icon"></div>
+    Ready for Voice Input
+  </div>
+
+  <div class="response-container">
+    <div id="userText" class="user-text" style="display: none;"></div>
+    <div id="botReply" class="bot-reply" style="display: none;"></div>
+    <audio id="audioReply" controls class="audio-controls" style="display:none"></audio>
+  </div>
+
+<script>
+const micBtn = document.getElementById('micBtn');
+const userText = document.getElementById('userText');
+const botReply = document.getElementById('botReply');
+const audioReply = document.getElementById('audioReply');
+const statusBar = document.querySelector('.status-bar');
+const soundBar = document.querySelector('.sound-bar');
+
+// Assistance button elements
+const assistanceBtn = document.getElementById('assistanceBtn');
+const assistanceMenu = document.getElementById('assistanceMenu');
+const assistanceStatus = document.getElementById('assistanceStatus');
+const assistanceOptions = document.querySelectorAll('.assistance-option');
+
+// Auto-end interaction variables
+let silenceTimer = null;
+let isInteractionActive = false;
+let SILENCE_TIMEOUT_MS = 30000; // Default 30 seconds, will be updated from backend
+let countdownInterval = null;
+
+let recognition;
+if ('webkitSpeechRecognition' in window) {
+  recognition = new webkitSpeechRecognition();
+  console.log('Using webkitSpeechRecognition');
+} else if ('SpeechRecognition' in window) {
+  recognition = new SpeechRecognition();
+  console.log('Using SpeechRecognition');
+} else {
+  console.error('Speech Recognition not supported in this browser.');
+  alert('Speech Recognition not supported in this browser. Please use Chrome, Firefox, or Safari.');
+}
+
+recognition.continuous = false;
+recognition.interimResults = false;
+recognition.lang = 'en-US';
+
+// Fetch configuration from backend on page load
+async function loadConfiguration() {
+  try {
+    const response = await fetch('/config');
+    const config = await response.json();
+    SILENCE_TIMEOUT_MS = config.silence_timeout_ms;
+    
+    // Update the auto-end info text with the actual timeout value
+    const autoEndInfo = document.querySelector('.auto-end-info');
+    const timeoutSeconds = SILENCE_TIMEOUT_MS / 1000;
+    autoEndInfo.innerHTML = `💡 Auto-ends after ${timeoutSeconds}s of silence or when you say "thank you", "okay", etc.`;
+    
+    console.log(`Configuration loaded: Silence timeout set to ${SILENCE_TIMEOUT_MS}ms`);
+    console.log(`Ending phrases configured: ${config.ending_phrases_count} phrases`);
+  } catch (error) {
+    console.warn('Could not load configuration from backend, using default timeout:', error);
+  }
+}
+
+// Load configuration when page loads
+document.addEventListener('DOMContentLoaded', loadConfiguration);
+
+function startSilenceTimer() {
+  // Clear any existing timer and countdown
+  if (silenceTimer) {
+    clearTimeout(silenceTimer);
+  }
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+  
+  // Show timeout indicator
+  const timeoutIndicator = document.getElementById('timeoutIndicator');
+  const timeoutCountdown = document.getElementById('timeoutCountdown');
+  timeoutIndicator.style.display = 'block';
+  
+  // Start countdown
+  let timeLeft = SILENCE_TIMEOUT_MS / 1000;
+  timeoutCountdown.textContent = timeLeft;
+  
+  countdownInterval = setInterval(() => {
+    timeLeft--;
+    timeoutCountdown.textContent = timeLeft;
+    
+    if (timeLeft <= 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+    }
+  }, 1000);
+  
+  // Start new silence timer
+  silenceTimer = setTimeout(() => {
+    if (isInteractionActive) {
+      console.log('Silence timeout reached - ending interaction automatically');
+      endInteraction('Interaction ended due to inactivity. Feel free to ask another question when ready.');
+    }
+  }, SILENCE_TIMEOUT_MS);
+}
+
+function endInteraction(message = null) {
+  isInteractionActive = false;
+  
+  // Clear silence timer and countdown
+  if (silenceTimer) {
+    clearTimeout(silenceTimer);
+    silenceTimer = null;
+  }
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+  
+  // Hide timeout indicator
+  const timeoutIndicator = document.getElementById('timeoutIndicator');
+  timeoutIndicator.style.display = 'none';
+  
+  // Show ending indicator
+  const endingIndicator = document.getElementById('endingIndicator');
+  endingIndicator.style.display = 'block';
+  
+  // Hide ending indicator after animation
+  setTimeout(() => {
+    endingIndicator.style.display = 'none';
+  }, 3000);
+  
+  // Update UI to show interaction has ended
+  if (message) {
+    botReply.style.display = 'block';
+    botReply.textContent = "Assistant: " + message;
+    botReply.style.borderLeftColor = '#00ff00';
+  }
+  
+  // Reset microphone button
+  micBtn.classList.remove('recording');
+  soundBar.classList.remove('active');
+  
+  // Update status
+  statusBar.innerHTML = '<div class="status-icon"></div>Ready for Voice Input';
+  
+  // Clear user text after a delay
+  setTimeout(() => {
+    userText.style.display = 'none';
+    botReply.style.display = 'none';
+    audioReply.style.display = 'none';
+  }, 3000);
+  
+  console.log('Interaction ended automatically');
+}
+
+micBtn.onclick = () => {
+  console.log('Microphone button clicked');
+  try {
+    recognition.start();
+    console.log('Recognition started');
+    isInteractionActive = true;
+    userText.style.display = 'block';
+    userText.textContent = "Listening...";
+    statusBar.innerHTML = '<div class="status-icon active"></div>Listening...';
+    micBtn.classList.add('recording');
+    soundBar.classList.add('active');
+    
+    // Start silence timer
+    startSilenceTimer();
+  } catch (error) {
+    console.error('Error starting recognition:', error);
+    userText.style.display = 'block';
+    userText.textContent = "Error starting voice recognition: " + error.message;
+  }
+};
+
+recognition.onend = () => {
+  // Only reset if interaction is not active (user didn't say anything)
+  if (!isInteractionActive) {
+    statusBar.innerHTML = '<div class="status-icon"></div>Ready for Voice Input';
+    micBtn.classList.remove('recording');
+    soundBar.classList.remove('active');
+  }
+};
+
+recognition.onresult = function(event) {
+  console.log('Voice recognition result:', event);
+  const text = event.results[0][0].transcript;
+  userText.style.display = 'block';
+  userText.textContent = "You said: " + text;
+  
+  // Update status to show processing
+  statusBar.innerHTML = '<div class="status-icon active"></div>Processing...';
+  
+  // Reset silence timer since user spoke
+  startSilenceTimer();
+
+  // Send to backend
+  fetch('/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: text })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Backend response:', data);
+    botReply.style.display = 'block';
+    botReply.textContent = "Assistant: " + data.answer;
+    
+    if (data.audio) {
+      audioReply.src = "data:audio/mpeg;base64," + data.audio;
+      audioReply.style.display = "block";
+      audioReply.play();
+    }
+    
+    // Update status to show ready for next input
+    statusBar.innerHTML = '<div class="status-icon"></div>Ready for next question';
+    
+    // Check if interaction should end automatically
+    if (data.should_end_interaction) {
+      console.log('Ending interaction due to ending phrase detected');
+      statusBar.innerHTML = '<div class="status-icon timeout"></div>Ending interaction...';
+      setTimeout(() => {
+        endInteraction();
+      }, 2000); // Give user time to hear the response
+    }
+  })
+  .catch(error => {
+    console.error('Fetch error:', error);
+    botReply.style.display = 'block';
+    botReply.textContent = "Error: " + error.message;
+    statusBar.innerHTML = '<div class="status-icon"></div>Error occurred';
+  });
+};
+
+recognition.onerror = (event) => {
+  console.error('Recognition error:', event);
+  userText.style.display = 'block';
+  userText.textContent = "Error: " + event.error;
+  statusBar.innerHTML = '<div class="status-icon"></div>Error occurred';
+  micBtn.classList.remove('recording');
+  soundBar.classList.remove('active');
+  isInteractionActive = false;
+  
+  // Clear silence timer and countdown on error
+  if (silenceTimer) {
+    clearTimeout(silenceTimer);
+    silenceTimer = null;
+  }
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+  
+  // Hide timeout indicator
+  const timeoutIndicator = document.getElementById('timeoutIndicator');
+  timeoutIndicator.style.display = 'none';
+};
+
+// Assistance button functionality
+assistanceBtn.addEventListener('click', () => {
+  assistanceMenu.classList.toggle('show');
+  
+  // Rotate arrow based on menu state
+  const dropdownArrow = assistanceBtn.querySelector('.dropdown-arrow');
+  if (assistanceMenu.classList.contains('show')) {
+    dropdownArrow.style.transform = 'rotate(180deg)'; // Point up when open
+  } else {
+    dropdownArrow.style.transform = 'rotate(0deg)'; // Point down when closed
+  }
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (event) => {
+  if (!assistanceBtn.contains(event.target) && !assistanceMenu.contains(event.target)) {
+    assistanceMenu.classList.remove('show');
+  }
+});
+
+// Handle assistance option selection
+assistanceOptions.forEach(option => {
+  option.addEventListener('click', async () => {
+    const assistanceType = option.dataset.type;
+    assistanceMenu.classList.remove('show');
+    
+    // Show loading status
+    assistanceStatus.style.display = 'block';
+    assistanceStatus.textContent = `Sending ${assistanceType} request...`;
+    
+    try {
+      const response = await fetch('/assistance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: assistanceType })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        assistanceStatus.innerHTML = data.message;
+        assistanceStatus.style.borderLeftColor = '#00ff00';
+      } else {
+        assistanceStatus.textContent = data.message;
+        assistanceStatus.style.borderLeftColor = '#ff0000';
+      }
+      
+    } catch (error) {
+      assistanceStatus.textContent = `Error: ${error.message}`;
+      assistanceStatus.style.borderLeftColor = '#ff0000';
+    }
+    
+    // Hide status after 5 seconds
+    setTimeout(() => {
+      assistanceStatus.style.display = 'none';
+    }, 5000);
+  });
+});
+
+// Feedback System Functionality
+const shareFeedbackBtn = document.getElementById('shareFeedbackBtn');
+const feedbackModal = document.getElementById('feedbackModal');
+const closeFeedbackModal = document.getElementById('closeFeedbackModal');
+const stars = document.querySelectorAll('.star');
+const ratingText = document.querySelector('.rating-text');
+const feedbackComment = document.getElementById('feedbackComment');
+const submitFeedback = document.getElementById('submitFeedback');
+const feedbackStatus = document.getElementById('feedbackStatus');
+
+let selectedRating = 0;
+
+// Open feedback modal
+shareFeedbackBtn.addEventListener('click', () => {
+  feedbackModal.style.display = 'block';
+  // Reset form when opening
+  resetFeedbackForm();
+});
+
+// Close feedback modal
+closeFeedbackModal.addEventListener('click', () => {
+  feedbackModal.style.display = 'none';
+  resetFeedbackForm();
+});
+
+// Close modal when clicking outside
+feedbackModal.addEventListener('click', (event) => {
+  if (event.target === feedbackModal) {
+    feedbackModal.style.display = 'none';
+    resetFeedbackForm();
+  }
+});
+
+// Star rating functionality
+stars.forEach((star, index) => {
+  star.addEventListener('click', () => {
+    selectedRating = index + 1;
+    
+    // Update star display
+    stars.forEach((s, i) => {
+      if (i < selectedRating) {
+        s.classList.add('active', 'filled');
+      } else {
+        s.classList.remove('active', 'filled');
+      }
+    });
+    
+    // Update rating text
+    const ratingDescriptions = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+    ratingText.textContent = ratingDescriptions[selectedRating];
+    
+    // Enable submit button
+    submitFeedback.disabled = false;
+  });
+  
+  // Hover effects
+  star.addEventListener('mouseenter', () => {
+    const rating = index + 1;
+    stars.forEach((s, i) => {
+      if (i < rating) {
+        s.classList.add('active');
+      }
+    });
+  });
+  
+  star.addEventListener('mouseleave', () => {
+    stars.forEach(s => {
+      if (!s.classList.contains('filled')) {
+        s.classList.remove('active');
+      }
+    });
+  });
+});
+
+// Submit feedback
+submitFeedback.addEventListener('click', async () => {
+  if (selectedRating === 0) {
+    feedbackStatus.style.display = 'block';
+    feedbackStatus.textContent = 'Please select a rating before submitting.';
+    feedbackStatus.style.borderLeftColor = '#ff0000';
+    return;
+  }
+  
+  submitFeedback.disabled = true;
+  submitFeedback.textContent = 'Submitting...';
+  
+      try {
+      const feedbackType = document.getElementById('feedbackType').value;
+      const feedbackData = {
+        type: feedbackType,
+        rating: selectedRating,
+        comment: feedbackComment.value.trim(),
+        timestamp: new Date().toISOString()
+      };
+      
+      // Send feedback to the backend API
+      const response = await fetch('/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: feedbackType,
+          message: feedbackComment.value.trim() || 'No comment provided',
+          name: 'Voice Assistant User',
+          rating: selectedRating.toString(),
+          timestamp: new Date().toISOString()
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        feedbackStatus.style.display = 'block';
+        feedbackStatus.textContent = 'Thank you for your feedback! It has been saved successfully.';
+        feedbackStatus.style.borderLeftColor = '#00ff00';
+        
+        // Reset form and close modal after success
+        setTimeout(() => {
+          feedbackModal.style.display = 'none';
+          resetFeedbackForm();
+        }, 3000);
+      } else {
+        throw new Error(result.message || 'Failed to submit feedback');
+      }
+      
+    } catch (error) {
+    feedbackStatus.style.display = 'block';
+    feedbackStatus.textContent = `Error: ${error.message}`;
+    feedbackStatus.style.borderLeftColor = '#ff0000';
+    
+    submitFeedback.disabled = false;
+    submitFeedback.textContent = 'Submit Feedback';
+  }
+});
+
+// Function to reset feedback form
+function resetFeedbackForm() {
+  // Reset stars
+  stars.forEach(s => s.classList.remove('active', 'filled'));
+  selectedRating = 0;
+  ratingText.textContent = 'Click to rate';
+  
+  // Reset feedback type to default
+  document.getElementById('feedbackType').value = 'general';
+  
+  // Reset comment
+  feedbackComment.value = '';
+  
+  // Reset button
+  submitFeedback.disabled = true;
+  submitFeedback.textContent = 'Submit Feedback';
+  
+  // Hide status
+  feedbackStatus.style.display = 'none';
+}
+
+// Initialize submit button as disabled
+submitFeedback.disabled = true;
+</script>
+</body>
+</html> 
